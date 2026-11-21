@@ -1,0 +1,6 @@
+{
+  "name": "CodeCrumb – Your Developer Memory Box",
+  "description": "A personal developer productivity journal to document daily learning, track bugs and fixes, organize code snippets and commands, and maintain a real coding streak.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

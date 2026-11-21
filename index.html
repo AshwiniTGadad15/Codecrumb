@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CodeCrumb – Your Developer Memory Box</title>
+    <meta
+      name="description"
+      content="A personal developer productivity journal to document daily coding learning, bugs and solutions, reusable code snippets, commands, and your real learning streak."
+    />
+    <meta property="og:title" content="CodeCrumb – Your Developer Memory Box" />
+    <meta
+      property="og:description"
+      content="Document daily coding activities, track bugs and fixes, organize code snippets and commands, and maintain a real developer learning streak."
+    />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" type="image/svg+xml" href="./assets/icons/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./css/style.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <!-- Sidebar Navigation -->
+      <aside class="sidebar" id="sidebar" aria-label="Primary navigation">
+        <div class="sidebar-brand">
+          <img src="./assets/icons/logo.svg" alt="CodeCrumb logo" class="brand-logo" />
+          <span class="brand-wordmark">CodeCrumb</span>
+        </div>
+
+        <nav class="sidebar-nav" id="navList">
+          <button type="button" class="nav-item active" data-view="dashboard" aria-current="page">
+            <i data-lucide="layout-dashboard"></i>
+            <span>Dashboard</span>
+          </button>
+          <button type="button" class="nav-item" data-view="learning">
+            <i data-lucide="book-open"></i>
+            <span>Daily Learning</span>
+            <span class="nav-count" id="navCountLearning">0</span>
+          </button>
+          <button type="button" class="nav-item" data-view="bugs">
+            <i data-lucide="bug"></i>
+            <span>Bug Diary</span>
+            <span class="nav-count" id="navCountBugs">0</span>
+          </button>
+          <button type="button" class="nav-item" data-view="snippets">
+            <i data-lucide="code-2"></i>
+            <span>Code Snippets</span>
+            <span class="nav-count" id="navCountSnippets">0</span>
+          </button>
+          <button type="button" class="nav-item" data-view="commands">
+            <i data-lucide="terminal"></i>
+            <span>Useful Commands</span>
+            <span class="nav-count" id="navCountCommands">0</span>
+          </button>
+          <button type="button" class="nav-item" data-view="streak">
+            <i data-lucide="flame"></i>
+            <span>Learning Streak</span>
+          </button>
+          <button type="button" class="nav-item" data-view="settings">
+            <i data-lucide="settings"></i>
+            <span>Settings</span>
+          </button>
+        </nav>
+
+        <div class="sidebar-footer">
+          <div class="sidebar-streak-summary">
+            <span class="sidebar-streak-label">Current Streak</span>
+            <span class="sidebar-streak-value" id="sidebarStreakValue">0 days</span>
+          </div>
+          <a href="./CodeCrumb.zip" download="CodeCrumb.zip" class="sidebar-zip-link">
+            <i data-lucide="folder-archive"></i>
+            <span>Download Project ZIP</span>
+          </a>
+        </div>
+      </aside>
+
+      <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+      <!-- Main Workspace -->
+      <div class="main-wrapper">
+        <!-- Top Header -->
+        <header class="topbar">
+          <div class="topbar-left">
+            <button
+              type="button"
+              class="mobile-menu-btn"
+              id="mobileMenuBtn"
+              aria-label="Toggle navigation menu"
+            >
+              <i data-lucide="menu"></i>
+            </button>
+            <div class="topbar-breadcrumb">
+              <span>CodeCrumb</span>
+              <span aria-hidden="true">/</span>
+              <strong id="breadcrumbCurrent">Dashboard</strong>
+            </div>
+          </div>
+
+          <div class="topbar-search-wrap">
+            <i data-lucide="search" class="topbar-search-icon"></i>
+            <input
+              type="search"
+              id="globalSearchInput"
+              class="topbar-search-input"
+              placeholder="Search entries, bugs, snippets, commands..."
+              autocomplete="off"
+              aria-label="Global search"
+            />
+            <span class="topbar-search-kbd" aria-hidden="true">/</span>
+            <div class="global-search-dropdown" id="globalSearchDropdown" role="listbox"></div>
+          </div>
+
+          <div class="topbar-actions">
+            <button type="button" class="btn btn-primary" id="topbarQuickAddBtn">
+              <i data-lucide="plus"></i>
+              <span>New Entry</span>
+            </button>
+          </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+          <!-- ==================== VIEW 1: DASHBOARD ==================== -->
+          <section class="view-section active" id="view-dashboard" aria-labelledby="welcomeHeading">
+            <div class="page-header">
+              <div>
+                <h1 class="page-title" id="welcomeHeading">Welcome back, Developer!</h1>
+                <p class="page-subtitle" id="welcomeDateSub">Your personal developer memory box</p>
+              </div>
+            </div>
+
+            <!-- 4 KPI Stat Cards -->
+            <div class="stats-grid">
+              <article class="card stat-card">
+                <span class="stat-label">Total Learning Entries</span>
+                <div class="stat-value-row">
+                  <span class="stat-value" id="kpiLearning">0</span>
+                </div>
+                <span class="stat-note">Saved in Daily Learning Journal</span>
+              </article>
+
+              <article class="card stat-card">
+                <span class="stat-label">Bugs Documented</span>
+                <div class="stat-value-row">
+                  <span class="stat-value" id="kpiBugs">0</span>
+                </div>
+                <span class="stat-note">Errors paired with verified fixes</span>
+              </article>
+
+              <article class="card stat-card">
+                <span class="stat-label">Code Snippets</span>
+                <div class="stat-value-row">
+                  <span class="stat-value" id="kpiSnippets">0</span>
+                </div>
+                <span class="stat-note">One-click copyable library</span>
+              </article>
+
+              <article class="card stat-card">
+                <span class="stat-label">Current Learning Streak</span>
+                <div class="stat-value-row">
+                  <span class="stat-value"><span id="kpiStreak">0</span><span class="stat-unit">days</span></span>
+                </div>
+                <span class="stat-note" id="kpiStreakNote">Calculated from real entries</span>
+              </article>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="quick-actions-bar">
+              <button type="button" class="btn btn-primary" data-quick-add="learning">
+                <i data-lucide="book-open"></i>
+                Log Learning
+              </button>
+              <button type="button" class="btn btn-secondary" data-quick-add="bugs">
+                <i data-lucide="bug"></i>
+                Record Bug
+              </button>
+              <button type="button" class="btn btn-secondary" data-quick-add="snippets">
+                <i data-lucide="code-2"></i>
+                Save Snippet
+              </button>
+              <button type="button" class="btn btn-secondary" data-quick-add="commands">
+                <i data-lucide="terminal"></i>
+                Add Command
+              </button>
+            </div>
+
+            <!-- Two-Column Dashboard Widgets -->
+            <div class="dashboard-grid">
+              <!-- Left Column -->
+              <div class="dashboard-col">
+                <!-- Today's Coding Goal -->
+                <article class="card">
+                  <div class="card-header">
+                    <h2 class="section-heading">Today's Coding Goal</h2>
+                    <span class="meta-line" id="goalStatusText">In progress</span>
+                  </div>
+                  <form class="goal-form" id="goalForm">
+                    <input
+                      type="text"
+                      id="goalInput"
+                      class="form-control"
+                      placeholder="Set one focused coding goal for today..."
+                      maxlength="140"
+                      aria-label="Today's coding goal"
+                    />
+                    <button type="submit" class="btn btn-primary">Save Goal</button>
+                  </form>
+                  <div class="goal-display" id="goalDisplay" style="display: none;">
+                    <label class="goal-checkbox-wrap">
+                      <input type="checkbox" id="goalCheckbox" class="goal-checkbox" />
+                      <span class="goal-text" id="goalText"></span>
+                    </label>
+                    <div class="entry-actions">
+                      <button type="button" class="btn-icon" id="editGoalBtn" title="Edit goal" aria-label="Edit goal">
+                        <i data-lucide="pencil"></i>
+                      </button>
+                      <button type="button" class="btn-icon danger" id="clearGoalBtn" title="Clear goal" aria-label="Clear goal">
+                        <i data-lucide="x"></i>
+                      </button>
+                    </div>
+                  </div>
+                </article>
+
+                <!-- Recent Activities -->
+                <article class="card">
+                  <div class="card-header">
+                    <h2 class="section-heading">Recent Activity</h2>
+                    <button type="button" class="btn btn-ghost btn-sm" data-jump-view="learning" data-jump-query="">
+                      View Journal
+                    </button>
+                  </div>
+                  <div class="activity-list" id="recentActivityList"></div>
+                </article>
+              </div>
+
+              <!-- Right Column -->
+              <div class="dashboard-col">
+                <!-- Weekly Learning Summary -->
+                <article class="card">
+                  <div class="card-header">
+                    <h2 class="section-heading">Weekly Learning Summary</h2>
+                    <span class="meta-line mono" id="weeklyRangeLabel"></span>
+                  </div>
+                  <div class="weekly-rows" id="weeklySummaryBody"></div>
+                </article>
+
+                <!-- Random Knowledge Recall -->
+                <article class="card">
+                  <div class="card-header">
+                    <h2 class="section-heading">Random Knowledge Recall</h2>
+                    <button type="button" class="btn btn-ghost btn-sm" id="shuffleRecallBtn">
+                      <i data-lucide="shuffle"></i>
+                      Shuffle
+                    </button>
+                  </div>
+                  <div id="recallContainer"></div>
+                </article>
+
+                <!-- Developer Quote of the Day -->
+                <article class="card">
+                  <div class="card-header">
+                    <h2 class="section-heading">Developer Quote of the Day</h2>
+                    <button type="button" class="btn btn-ghost btn-sm" id="nextQuoteBtn">
+                      <i data-lucide="refresh-cw"></i>
+                      Next
+                    </button>
+                  </div>
+                  <p class="quote-body" id="quoteText"></p>
+                  <span class="quote-author" id="quoteAuthor"></span>
+                </article>
+              </div>
+            </div>
+          </section>
+
+          <!-- ==================== VIEW 2: DAILY LEARNING ==================== -->
+          <section class="view-section" id="view-learning" aria-labelledby="learningPageTitle">
+            <div class="page-header">
+              <div>
+                <h1 class="page-title" id="learningPageTitle">Daily Learning Journal</h1>
+                <p class="page-subtitle">Capture what you learned each day to build lasting developer memory and feed your streak.</p>
+              </div>
+              <button type="button" class="btn btn-primary" id="toggleLearningFormBtn">
+                <i data-lucide="plus"></i>
+                Add Learning Entry
+              </button>
+            </div>
+
+            <!-- Add / Edit Form -->
+            <div class="card form-panel collapsed" id="learningFormPanel">
+              <div class="card-header">
+                <h2 class="section-heading" id="learningFormTitle">Add Daily Learning Entry</h2>
+              </div>
+              <form id="learningForm" novalidate>
+                <input type="hidden" id="learningEditId" />
+                <div class="form-grid">
+                  <div class="form-group full-width">
+                    <label class="form-label" for="learningTitle">Learning Title</label>
+                    <input
+                      type="text"
+                      id="learningTitle"
+                      class="form-control"
+                      placeholder="e.g., Understanding JavaScript Event Loop Microtasks"
+                      required
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="learningLanguage">Language / Topic</label>
+                    <select id="learningLanguage" class="form-control"></select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="learningDate">Date</label>
+                    <input type="date" id="learningDate" class="form-control mono" required />
+                  </div>
+                  <div class="form-group full-width">
+                    <label class="form-label" for="learningContent">What I Learned</label>
+                    <textarea
+                      id="learningContent"
+                      class="form-control"
+                      rows="5"
+                      placeholder="Summarize the key takeaway, mental model, or edge case you discovered..."
+                      required
+                    ></textarea>
+                  </div>
+                </div>
+                <div class="form-error" id="learningFormError" role="alert"></div>
+                <div class="form-actions">
+                  <button type="button" class="btn btn-secondary" id="cancelLearningBtn">Cancel</button>
+                  <button type="submit" class="btn btn-primary" id="saveLearningBtn">Save Entry</button>
+                </div>
+              </form>
+            </div>
+
+            <!-- Search & Filters -->
+            <div class="toolbar">
+              <div class="toolbar-search">
+                <i data-lucide="search"></i>
+                <input
+                  type="search"
+                  id="learningSearch"
+                  class="form-control"
+                  placeholder="Search learning entries..."
+                  aria-label="Search learning entries"
+                />
+              </div>
+              <div class="toolbar-filters">
+                <select id="learningLangFilter" class="form-control toolbar-select" aria-label="Filter by language"></select>
+                <select id="learningSortFilter" class="form-control toolbar-select" aria-label="Sort entries">
+                  <option value="newest">Newest First</option>
+                  <option value="oldest">Oldest First</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="entries-stack" id="learningList"></div>
+          </section>
+
+          <!-- ==================== VIEW 3: BUG DIARY ==================== -->
+          <section class="view-section" id="view-bugs" aria-labelledby="bugsPageTitle">
+            <div class="page-header">
+              <div>
+                <h1 class="page-title" id="bugsPageTitle">Bug Diary</h1>
+                <p class="page-subtitle">Document tricky errors alongside their root-cause solutions for rapid future troubleshooting.</p>
+              </div>
+              <button type="button" class="btn btn-primary" id="toggleBugFormBtn">
+                <i data-lucide="plus"></i>
+                Record Bug
+              </button>
+            </div>
+
+            <div class="card form-panel collapsed" id="bugFormPanel">
+              <div class="card-header">
+                <h2 class="section-heading" id="bugFormTitle">Document a Bug &amp; Solution</h2>
+              </div>
+              <form id="bugForm" novalidate>
+                <input type="hidden" id="bugEditId" />
+                <div class="form-grid">
+                  <div class="form-group full-width">
+                    <label class="form-label" for="bugTitle">Bug Title</label>
+                    <input
+                      type="text"
+                      id="bugTitle"
+                      class="form-control"
+                      placeholder="e.g., CORS Preflight Blocked on Custom Auth Header"
+                      required
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="bugLanguage">Programming Language</label>
+                    <select id="bugLanguage" class="form-control"></select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="bugDate">Date</label>
+                    <input type="date" id="bugDate" class="form-control mono" required />
+                  </div>
+                  <div class="form-group full-width">
+                    <label class="form-label" for="bugError">Error Description / Symptoms</label>
+                    <textarea
+                      id="bugError"
+                      class="form-control"
+                      rows="3"
+                      placeholder="Describe the error message, stack trace, or unexpected behavior..."
+                      required
+                    ></textarea>
+                  </div>
+                  <div class="form-group full-width">
+                    <label class="form-label" for="bugSolution">Solution / Fix</label>
+                    <textarea
+                      id="bugSolution"
+                      class="form-control"
+                      rows="4"
+                      placeholder="Explain the root cause and the exact steps that resolved it..."
+                      required
+                    ></textarea>
+                  </div>
+                </div>
+                <div class="form-error" id="bugFormError" role="alert"></div>
+                <div class="form-actions">
+                  <button type="button" class="btn btn-secondary" id="cancelBugBtn">Cancel</button>
+                  <button type="submit" class="btn btn-primary" id="saveBugBtn">Save Bug Record</button>
+                </div>
+              </form>
+            </div>
+
+            <div class="toolbar">
+              <div class="toolbar-search">
+                <i data-lucide="search"></i>
+                <input
+                  type="search"
+                  id="bugSearch"
+                  class="form-control"
+                  placeholder="Search bugs, errors, or fixes..."
+                  aria-label="Search bug diary"
+                />
+              </div>
+              <div class="toolbar-filters">
+                <select id="bugLangFilter" class="form-control toolbar-select" aria-label="Filter bugs by language"></select>
+              </div>
+            </div>
+
+            <div class="entries-stack" id="bugList"></div>
+          </section>
+
+          <!-- ==================== VIEW 4: CODE SNIPPETS ==================== -->
+          <section class="view-section" id="view-snippets" aria-labelledby="snippetsPageTitle">
+            <div class="page-header">
+              <div>
+                <h1 class="page-title" id="snippetsPageTitle">Code Snippet Library</h1>
+                <p class="page-subtitle">Organize reusable patterns and utility functions with instant one-click copying.</p>
+              </div>
+              <button type="button" class="btn btn-primary" id="toggleSnippetFormBtn">
+                <i data-lucide="plus"></i>
+                Add Snippet
+              </button>
+            </div>
+
+            <div class="card form-panel collapsed" id="snippetFormPanel">
+              <div class="card-header">
+                <h2 class="section-heading" id="snippetFormTitle">Save Code Snippet</h2>
+              </div>
+              <form id="snippetForm" novalidate>
+                <input type="hidden" id="snippetEditId" />
+                <div class="form-grid">
+                  <div class="form-group">
+                    <label class="form-label" for="snippetTitle">Snippet Title</label>
+                    <input
+                      type="text"
+                      id="snippetTitle"
+                      class="form-control"
+                      placeholder="e.g., Safe JSON Parse Helper"
+                      required
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="snippetLanguage">Programming Language</label>
+                    <select id="snippetLanguage" class="form-control"></select>
+                  </div>
+                  <div class="form-group full-width">
+                    <label class="form-label" for="snippetDescription">Description</label>
+                    <input
+                      type="text"
+                      id="snippetDescription"
+                      class="form-control"
+                      placeholder="Briefly describe what this snippet does and when to use it..."
+                      required
+                    />
+                  </div>
+                  <div class="form-group full-width">
+                    <label class="form-label" for="snippetCode">Code</label>
+                    <textarea
+                      id="snippetCode"
+                      class="form-control code-input"
+                      rows="7"
+                      placeholder="Paste or write your code here (Tab inserts 2 spaces)..."
+                      required
+                    ></textarea>
+                  </div>
+                </div>
+                <div class="form-error" id="snippetFormError" role="alert"></div>
+                <div class="form-actions">
+                  <button type="button" class="btn btn-secondary" id="cancelSnippetBtn">Cancel</button>
+                  <button type="submit" class="btn btn-primary" id="saveSnippetBtn">Save Snippet</button>
+                </div>
+              </form>
+            </div>
+
+            <div class="toolbar">
+              <div class="toolbar-search">
+                <i data-lucide="search"></i>
+                <input
+                  type="search"
+                  id="snippetSearch"
+                  class="form-control"
+                  placeholder="Search snippets by title, description, or code..."
+                  aria-label="Search code snippets"
+                />
+              </div>
+              <div class="toolbar-filters">
+                <select id="snippetLangFilter" class="form-control toolbar-select" aria-label="Filter snippets by language"></select>
+              </div>
+            </div>
+
+            <div class="entries-grid" id="snippetList"></div>
+          </section>
+
+          <!-- ==================== VIEW 5: USEFUL COMMANDS ==================== -->
+          <section class="view-section" id="view-commands" aria-labelledby="commandsPageTitle">
+            <div class="page-header">
+              <div>
+                <h1 class="page-title" id="commandsPageTitle">Useful Commands</h1>
+                <p class="page-subtitle">Your personal cheat sheet for Git commands, terminal tools, VS Code shortcuts, and coding tips.</p>
+              </div>
+              <button type="button" class="btn btn-primary" id="toggleCommandFormBtn">
+                <i data-lucide="plus"></i>
+                Add Command
+              </button>
+            </div>
+
+            <div class="card form-panel collapsed" id="commandFormPanel">
+              <div class="card-header">
+                <h2 class="section-heading" id="commandFormTitle">Add Useful Command or Tip</h2>
+              </div>
+              <form id="commandForm" novalidate>
+                <input type="hidden" id="commandEditId" />
+                <div class="form-grid">
+                  <div class="form-group">
+                    <label class="form-label" for="commandTitle">Title</label>
+                    <input
+                      type="text"
+                      id="commandTitle"
+                      class="form-control"
+                      placeholder="e.g., Interactive Git Rebase Last 3 Commits"
+                      required
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="commandCategory">Category</label>
+                    <select id="commandCategory" class="form-control"></select>
+                  </div>
+                  <div class="form-group full-width">
+                    <label class="form-label" for="commandValue">Command / Shortcut / Tip</label>
+                    <input
+                      type="text"
+                      id="commandValue"
+                      class="form-control mono"
+                      placeholder="e.g., git rebase -i HEAD~3"
+                      required
+                    />
+                  </div>
+                  <div class="form-group full-width">
+                    <label class="form-label" for="commandNotes">Notes (Optional)</label>
+                    <textarea
+                      id="commandNotes"
+                      class="form-control"
+                      rows="2"
+                      placeholder="Add context, flags, or OS-specific notes..."
+                    ></textarea>
+                  </div>
+                </div>
+                <div class="form-error" id="commandFormError" role="alert"></div>
+                <div class="form-actions">
+                  <button type="button" class="btn btn-secondary" id="cancelCommandBtn">Cancel</button>
+                  <button type="submit" class="btn btn-primary" id="saveCommandBtn">Save Command</button>
+                </div>
+              </form>
+            </div>
+
+            <div class="toolbar">
+              <div class="toolbar-search">
+                <i data-lucide="search"></i>
+                <input
+                  type="search"
+                  id="commandSearch"
+                  class="form-control"
+                  placeholder="Search commands, shortcuts, or notes..."
+                  aria-label="Search useful commands"
+                />
+              </div>
+              <div class="segmented-tabs" id="commandCategoryTabs" role="tablist" aria-label="Command categories">
+                <button type="button" class="segmented-tab active" data-category="All">All</button>
+                <button type="button" class="segmented-tab" data-category="Git Commands">Git</button>
+                <button type="button" class="segmented-tab" data-category="Terminal Commands">Terminal</button>
+                <button type="button" class="segmented-tab" data-category="VS Code Shortcuts">VS Code</button>
+                <button type="button" class="segmented-tab" data-category="Programming Tips">Tips</button>
+              </div>
+            </div>
+
+            <div class="entries-stack" id="commandList"></div>
+          </section>
+
+          <!-- ==================== VIEW 6: LEARNING STREAK ==================== -->
+          <section class="view-section" id="view-streak" aria-labelledby="streakPageTitle">
+            <div class="page-header">
+              <div>
+                <h1 class="page-title" id="streakPageTitle">Learning Streak &amp; Milestones</h1>
+                <p class="page-subtitle">Real contribution activity computed directly from your saved Daily Learning entries.</p>
+              </div>
+              <button type="button" class="btn btn-primary" data-quick-add="learning">
+                <i data-lucide="plus"></i>
+                Log Today's Learning
+              </button>
+            </div>
+
+            <!-- Streak KPI Strip -->
+            <div class="stats-grid">
+              <article class="card stat-card">
+                <span class="stat-label">Current Streak</span>
+                <div class="stat-value-row">
+                  <span class="stat-value"><span id="streakCurrentVal">0</span><span class="stat-unit">days</span></span>
+                </div>
+                <span class="stat-note">Consecutive active days</span>
+              </article>
+
+              <article class="card stat-card">
+                <span class="stat-label">Longest Streak</span>
+                <div class="stat-value-row">
+                  <span class="stat-value"><span id="streakLongestVal">0</span><span class="stat-unit">days</span></span>
+                </div>
+                <span class="stat-note">Personal best run</span>
+              </article>
+
+              <article class="card stat-card">
+                <span class="stat-label">Total Active Days</span>
+                <div class="stat-value-row">
+                  <span class="stat-value" id="streakActiveDaysVal">0</span>
+                </div>
+                <span class="stat-note">Unique days with entries</span>
+              </article>
+
+              <article class="card stat-card">
+                <span class="stat-label">Entries This Year</span>
+                <div class="stat-value-row">
+                  <span class="stat-value" id="streakYearTotalVal">0</span>
+                </div>
+                <span class="stat-note">Logged in current calendar year</span>
+              </article>
+            </div>
+
+            <!-- GitHub-Inspired Contribution Calendar -->
+            <article class="card" style="margin-bottom: 24px;">
+              <div class="card-header">
+                <h2 class="section-heading" id="calendarYearHeading">Learning Activity</h2>
+              </div>
+
+              <div class="calendar-scroll">
+                <div class="calendar-container">
+                  <div class="calendar-months" id="calendarMonths"></div>
+                  <div class="calendar-body">
+                    <div class="calendar-weekdays" aria-hidden="true">
+                      <span></span>
+                      <span>Mon</span>
+                      <span></span>
+                      <span>Wed</span>
+                      <span></span>
+                      <span>Fri</span>
+                      <span></span>
+                    </div>
+                    <div class="calendar-weeks" id="calendarWeeks" role="grid" aria-label="Yearly learning activity calendar"></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="calendar-footer">
+                <span>Click any date cell to inspect or log entries for that day.</span>
+                <div class="calendar-legend" aria-label="Activity level legend">
+                  <span>Less</span>
+                  <span class="legend-swatch" style="background: var(--cal-level-0);" title="0 entries"></span>
+                  <span class="legend-swatch" style="background: var(--cal-level-1);" title="1 entry"></span>
+                  <span class="legend-swatch" style="background: var(--cal-level-2);" title="2 entries"></span>
+                  <span class="legend-swatch" style="background: var(--cal-level-3);" title="3 entries"></span>
+                  <span class="legend-swatch" style="background: var(--cal-level-4);" title="4+ entries"></span>
+                  <span>More</span>
+                </div>
+              </div>
+
+              <div class="day-inspector" id="dayInspector"></div>
+            </article>
+
+            <!-- Achievement Badges -->
+            <div class="card-header" style="margin-bottom: 4px;">
+              <h2 class="section-heading">Achievement Badges</h2>
+              <span class="meta-line mono" id="badgesSummaryText"></span>
+            </div>
+            <div class="badges-grid" id="badgesGrid"></div>
+          </section>
+
+          <!-- ==================== VIEW 7: SETTINGS ==================== -->
+          <section class="view-section" id="view-settings" aria-labelledby="settingsPageTitle">
+            <div class="page-header">
+              <div>
+                <h1 class="page-title" id="settingsPageTitle">Settings</h1>
+                <p class="page-subtitle">Personalize your profile, switch themes, and manage local JSON backups.</p>
+              </div>
+            </div>
+
+            <div class="settings-grid">
+              <!-- Profile -->
+              <article class="card">
+                <div class="card-header">
+                  <h2 class="section-heading">Developer Profile</h2>
+                </div>
+                <form id="profileForm">
+                  <div class="form-group">
+                    <label class="form-label" for="settingsUserName">Display Name</label>
+                    <input
+                      type="text"
+                      id="settingsUserName"
+                      class="form-control"
+                      maxlength="40"
+                      placeholder="Developer"
+                      required
+                    />
+                  </div>
+                  <div class="settings-action-row">
+                    <button type="submit" class="btn btn-primary">Save Name</button>
+                  </div>
+                </form>
+              </article>
+
+              <!-- Theme Preferences -->
+              <article class="card">
+                <div class="card-header">
+                  <h2 class="section-heading">Theme Preferences</h2>
+                </div>
+                <p class="page-subtitle" style="margin:0;">Choose the workspace appearance saved in your browser.</p>
+                <div class="theme-options" id="themeOptions">
+                  <button type="button" class="theme-option active" data-theme-choice="navy">
+                    <div class="theme-swatch-row">
+                      <span class="theme-swatch" style="background:#0B1020;"></span>
+                      <span class="theme-swatch" style="background:#8B5CF6;"></span>
+                      <span class="theme-swatch" style="background:#38BDF8;"></span>
+                    </div>
+                    <span class="theme-option-name">Deep Navy</span>
+                  </button>
+                  <button type="button" class="theme-option" data-theme-choice="obsidian">
+                    <div class="theme-swatch-row">
+                      <span class="theme-swatch" style="background:#07090F;"></span>
+                      <span class="theme-swatch" style="background:#8B5CF6;"></span>
+                      <span class="theme-swatch" style="background:#38BDF8;"></span>
+                    </div>
+                    <span class="theme-option-name">Obsidian</span>
+                  </button>
+                  <button type="button" class="theme-option" data-theme-choice="light">
+                    <div class="theme-swatch-row">
+                      <span class="theme-swatch" style="background:#F4F6FB;"></span>
+                      <span class="theme-swatch" style="background:#7C3AED;"></span>
+                      <span class="theme-swatch" style="background:#0284C7;"></span>
+                    </div>
+                    <span class="theme-option-name">Daylight Slate</span>
+                  </button>
+                </div>
+              </article>
+
+              <!-- Data Backup & Restore -->
+              <article class="card">
+                <div class="card-header">
+                  <h2 class="section-heading">Data Export &amp; Import</h2>
+                </div>
+                <p class="page-subtitle" style="margin:0;">
+                  All journal records stay strictly in your browser's LocalStorage. Export a JSON snapshot anytime or restore on another machine.
+                </p>
+                <div class="settings-action-row">
+                  <button type="button" class="btn btn-primary" id="exportJsonBtn">
+                    <i data-lucide="download"></i>
+                    Export JSON
+                  </button>
+                  <button type="button" class="btn btn-secondary" id="importJsonBtn">
+                    <i data-lucide="upload"></i>
+                    Import JSON
+                  </button>
+                  <input type="file" id="importJsonInput" accept="application/json,.json" hidden />
+                </div>
+              </article>
+
+              <!-- Download Standalone ZIP & Reset -->
+              <article class="card">
+                <div class="card-header">
+                  <h2 class="section-heading">Project Source &amp; Reset</h2>
+                </div>
+                <p class="page-subtitle" style="margin:0;">
+                  Download the standalone HTML/CSS/JS project bundle for VS Code and GitHub, or reset LocalStorage cleanly.
+                </p>
+                <div class="settings-action-row">
+                  <a href="./CodeCrumb.zip" download="CodeCrumb.zip" class="btn btn-secondary" id="downloadZipBtn">
+                    <i data-lucide="folder-archive"></i>
+                    Download CodeCrumb.zip
+                  </a>
+                  <button type="button" class="btn btn-secondary" id="restoreSampleBtn">
+                    <i data-lucide="sparkles"></i>
+                    Load Starter Sample
+                  </button>
+                  <button type="button" class="btn btn-danger" id="clearAllDataBtn">
+                    <i data-lucide="trash-2"></i>
+                    Clear All Data
+                  </button>
+                </div>
+              </article>
+            </div>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <!-- Contribution Calendar Floating Tooltip -->
+    <div class="calendar-tooltip" id="calendarTooltip" role="tooltip"></div>
+
+    <!-- Custom Confirmation Modal -->
+    <div class="modal-overlay" id="confirmModal" role="dialog" aria-modal="true" aria-labelledby="confirmModalTitle">
+      <div class="modal-dialog">
+        <h2 class="modal-title" id="confirmModalTitle">Confirm Action</h2>
+        <p class="modal-message" id="confirmModalMessage"></p>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" id="confirmModalCancel">Cancel</button>
+          <button type="button" class="btn btn-danger" id="confirmModalOk">Confirm</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+    <!-- Lucide Icons UMD + Modular Vanilla JS -->
+    <script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
+    <script src="./js/storage.js"></script>
+    <script src="./js/streak.js"></script>
+    <script src="./js/features.js"></script>
+    <script src="./js/app.js"></script>
+  </body>
+</html>
