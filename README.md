@@ -4,6 +4,7 @@
 
 ---
 
+
 ## Key Features
 
 - **Developer Dashboard**: Overview KPIs (learning entries, bugs documented, code snippets, current learning streak), quick-action shortcuts, and a unified recent activity feed.
